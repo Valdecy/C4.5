@@ -188,17 +188,10 @@ def dt_c45(Xdata, ydata):
 
 ######################## Part 4 - Usage ####################################
 
-df = pd.read_csv('Python-DM-Classification-02-C4.5a.csv', sep = ';')
-df = pd.read_csv('Python-DM-Classification-02-C4.5b.csv', sep = ';')
-df = pd.read_csv('Python-DM-Classification-02-C4.5c.csv', sep = ';')
-df = pd.read_csv('Python-DM-Classification-02-C4.5d.csv', sep = ';')
-df = pd.read_csv('Python-DM-Classification-01-ID3a.csv' , sep = ';')
+df = pd.read_csv('Python-DM-Classification-02-C4.5.csv', sep = ';')
 
 X = df.iloc[:, 0:4]
 y = df.iloc[:, 4]
-
-Xdata = df.iloc[:, 0:4]
-ydata = df.iloc[:, 4]
 
 dt_c45(Xdata = X, ydata = y)
 
