@@ -140,7 +140,6 @@ def dt_c45(Xdata, ydata):
                     if igr > float(gain_ratio[0, element]):
                         gain_ratio[0, element] = igr
                         uniqueWords[element] = bin_sample[1]
-                continue
             if is_number(dataset.iloc[0, element]) == False:
                 gain_ratio[0, element] = 0.0
                 igr = info_gain_ratio(target = branch[i].iloc[:, 0], feature =  pd.DataFrame(branch[i].iloc[:, element].values.reshape((branch[i].iloc[:, element].shape[0], 1))), uniques = uniqueWords[element])
