@@ -1,0 +1,15 @@
+﻿Outlook;Temperature;Humidity;Windy;Play
+Sunny;85;85;False;No
+Sunny;80;90;True;No
+Overcast;83;86;False;Yes
+Rainy;70;96;False;Yes
+Rainy;68;80;False;Yes
+Rainy;65;70;True;No
+Overcast;64;65;True;Yes
+Sunny;72;95;False;No
+Sunny;69;70;False;Yes
+Rainy;75;80;False;Yes
+Sunny;75;70;True;Yes
+Overcast;72;90;True;Yes
+Overcast;81;75;False;Yes
+Rainy;71;91;True;No
