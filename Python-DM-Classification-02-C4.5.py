@@ -128,10 +128,7 @@ def dt_c45(Xdata, ydata):
                 else:
                     start = 1
                     finish = len(branch[i].iloc[:, element].unique()) - 2
-                if len(branch[i]) == 2:
-                    start = 0
-                    finish = 1
-                if len(value) == 1 or len(value) == 2:
+                if len(branch[i]) == 2 or len(value) == 1 or len(value) == 2:
                     start = 0
                     finish = 1
                 if len(value) == 3:
