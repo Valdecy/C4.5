@@ -14,15 +14,92 @@
 # Installing Required Libraries
 import pandas as pd
 import numpy  as np
+from random import randint
+from scipy import stats
 
-# Function: is_number
+# Function: Returns True, if a Column is Numeric
 def is_number(string):
-    try:
-        float(string)
-        return True
-    except ValueError:
-        return False
+    for i in range(0, len(string)):
+        if pd.isnull(string[i]) == False:          
+            try:
+                float(string[i])
+                return True
+            except ValueError:
+                return False
 
+# Function: Returns True, if a Value is Numeric
+def is_number_value(value):
+    if pd.isnull(value) == False:          
+        try:
+            float(value)
+            return True
+        except ValueError:
+            return False
+
+# Function: Performs a Chi_Squared Test or Fisher Exact Test           
+def chi_squared_test(label_df, feature_df):
+    data = pd.concat([pd.DataFrame(label_df.values.reshape((label_df.shape[0], 1))), feature_df], axis = 1)
+    data.columns=["label", "feature"]
+    contigency_table = pd.crosstab(data.iloc[:,0], data.iloc[:,1], margins = False)
+    m = contigency_table.values.sum()
+    if m <= 10000 and contigency_table.shape == (2,2):
+        p_value = stats.fisher_exact(contigency_table)
+    else:
+        p_value = stats.chi2_contingency(contigency_table, correction = False) # (No Yates' Correction)
+    return p_value[1]
+
+# Function: Prediction           
+def prediction_dt_c45(dt_model, Xdata):
+    ydata = pd.DataFrame(index=range(0, Xdata.shape[0]), columns=["Target"])
+    data  = pd.concat([ydata, Xdata], axis = 1)
+    rule = []
+    for j in range(0, data.shape[1]):
+        if data.iloc[:,j].dtype == "bool":
+            data.iloc[:,j] = data.iloc[:, j].astype(str)
+    for i in range(0, len(dt_model)):
+        dt_model[i] = dt_model[i].replace("{", "")
+        dt_model[i] = dt_model[i].replace("}", "")
+        dt_model[i] = dt_model[i].replace(".", "")
+        dt_model[i] = dt_model[i].replace("IF ", "")
+        dt_model[i] = dt_model[i].replace("AND", "")
+        dt_model[i] = dt_model[i].replace("THEN", "")
+        dt_model[i] = dt_model[i].replace("=", "")
+        dt_model[i] = dt_model[i].replace("<", "<=")
+    
+    for i in range(0, len(dt_model) -2): 
+        splited_rule = [x for x in dt_model[i].split(" ") if x]
+        rule.append(splited_rule)
+   
+    for i in range(0, Xdata.shape[0]): 
+        for j in range(0, len(rule)):
+            k = 0
+            while k < len(rule[j]) - 2:
+                if is_number_value(data[rule[j][k]][i]) == False:
+                    if (data[rule[j][k]][i] == rule[j][k+1]) == True:
+                        if k == len(rule[j]) - 4:
+                            data.iloc[i,0] = rule[j][len(rule[j]) - 1]
+                    else:
+                        k = len(rule[j])
+                elif is_number_value(data[rule[j][k]][i]) == True:
+                     if rule[j][k+1].find("<=") == 0:
+                         if data[rule[j][k]][i] <= float(rule[j][k+1].replace("<=", "")) and k == len(rule[j]) - 4: 
+                             data.iloc[i,0] = rule[j][len(rule[j]) - 1]
+                         else:
+                             k = len(rule[j])
+                     elif rule[j][k+1].find(">") == 0:
+                         if data[rule[j][k]][i] > float(rule[j][k+1].replace(">", "")) and k == len(rule[j]) - 4: 
+                             data.iloc[i,0] = rule[j][len(rule[j]) - 1]
+                         else:
+                             k = len(rule[j])
+                k = k + 2
+    
+    for i in range(0, Xdata.shape[0]):
+        if pd.isnull(data.iloc[i,0]):
+            data.iloc[i,0] = dt_model[len(dt_model)-1]
+    
+    return data
+
+# Function: Calculates the Information Gain Ratio  
 def info_gain_ratio(target, feature = [], uniques = []):
     entropy = 0
     denominator_1 = feature.count()
@@ -46,14 +123,13 @@ def info_gain_ratio(target, feature = [], uniques = []):
         info_gain_r = info_gain/intrinsic_v
     return float(info_gain_r)
 
-def split_me(target, feature, split):
-    column = pd.DataFrame(feature.values.reshape((feature.shape[0], 1)))
+# Function: Binary Split on Continuous Variables 
+def split_me(feature, split):
     result = pd.DataFrame(feature.values.reshape((feature.shape[0], 1)))
     for fill in range(0, len(feature)):
-        column.iloc[fill,0] = feature.iloc[fill]
         result.iloc[fill,0] = feature.iloc[fill]
     lower = "<=" + str(split)
-    upper = "> " + str(split)
+    upper = ">" + str(split)
     for convert in range(0, len(feature)):
         if float(feature.iloc[convert]) <= float(split):
             result.iloc[convert,0] = lower
@@ -63,8 +139,8 @@ def split_me(target, feature, split):
     binary_split = [lower, upper]
     return result, binary_split
 
-# Function: dt_c45
-def dt_c45(Xdata, ydata):
+# Function: C4.5 Algorithm
+def dt_c45(Xdata, ydata, cat_missing = "none", num_missing = "none", pre_pruning = "none", chi_lim = 0.1, min_lim = 5):
     
     ################     Part 1 - Preprocessing    #############################
     # Preprocessing - Creating Dataframe
@@ -72,10 +148,42 @@ def dt_c45(Xdata, ydata):
     ydata = pd.DataFrame(ydata.values.reshape((ydata.shape[0], 1)))
     dataset = pd.concat([ydata, Xdata], axis = 1)
     
+     # Preprocessing - Boolean Values
     for j in range(0, dataset.shape[1]):
         if dataset.iloc[:,j].dtype == "bool":
             dataset.iloc[:,j] = dataset.iloc[:, j].astype(str)
 
+    # Preprocessing - Missing Values
+    if cat_missing != "none":
+        for j in range(1, dataset.shape[1]): 
+            if is_number(dataset.iloc[:, j]) == False:
+                for i in range(0, dataset.shape[0]):
+                    if pd.isnull(dataset.iloc[i,j]) == True:
+                        if cat_missing == "missing":
+                            dataset.iloc[i,j] = "Unknow"
+                        elif cat_missing == "most":
+                            dataset.iloc[i,j] = dataset.iloc[:,j].value_counts().idxmax()
+                        elif cat_missing == "remove":
+                            dataset = dataset.drop(dataset.index[i], axis = 0)
+                        elif cat_missing == "probability":
+                            while pd.isnull(dataset.iloc[i,j]) == True:
+                                dataset.iloc[i,j] = dataset.iloc[randint(0, dataset.shape[0] - 1), j]            
+    elif num_missing != "none":
+            if is_number(dataset.iloc[:, j]) == True:
+                for i in range(0, dataset.shape[0]):
+                    if pd.isnull(dataset.iloc[i,j]) == True:
+                        if num_missing == "mean":
+                            dataset.iloc[i,j] = dataset.iloc[:,j].mean()
+                        elif num_missing == "median":
+                            dataset.iloc[i,j] = dataset.iloc[:,j].median()
+                        elif num_missing == "most":
+                            dataset.iloc[i,j] = dataset.iloc[:,j].value_counts().idxmax()
+                        elif cat_missing == "remove":
+                            dataset = dataset.drop(dataset.index[i], axis = 0)
+                        elif num_missing == "probability":
+                            while pd.isnull(dataset.iloc[i,j]) == True:
+                                dataset.iloc[i,j] = dataset.iloc[randint(0, dataset.shape[0] - 1), j]  
+    
     # Preprocessing - Unique Words List
     unique = []
     uniqueWords = []
@@ -94,6 +202,7 @@ def dt_c45(Xdata, ydata):
     ################    Part 2 - Initialization    #############################
     # C4.5 - Initializing Variables
     i = 0
+    impurity = 0
     branch = [None]*1
     branch[0] = dataset
     gain_ratio = np.empty([1, branch[i].shape[1]])
@@ -108,6 +217,7 @@ def dt_c45(Xdata, ydata):
     ################     Part 3 - C4.5 Algorithm    #############################
     # C4.5 - Algorithm
     while (i < stop):
+        impurity = np.amax(gain_ratio)
         gain_ratio.fill(0)
         for element in range(1, branch[i].shape[1]):
             if len(branch[i]) == 0:
@@ -119,9 +229,16 @@ def dt_c45(Xdata, ydata):
                      rule[i] = rule[i].replace(" AND  THEN ", " THEN ")
                  skip_update = True
                  break
-            if is_number(dataset.iloc[0, element]):
+            if i > 0 and is_number(dataset.iloc[:, element]) == False and pre_pruning == "chi_2" and chi_squared_test(branch[i].iloc[:, 0], branch[i].iloc[:, element]) > chi_lim:
+                 if "." not in rule[i]:
+                     rule[i] = rule[i] + " THEN " + name + " = " + branch[i].agg(lambda x:x.value_counts().index[0])[0] + "."
+                     rule[i] = rule[i].replace(" AND  THEN ", " THEN ")
+                 skip_update = True
+                 continue
+            if is_number(dataset.iloc[:, element]) == True:
                 gain_ratio[0, element] = 0.0
                 value = np.sort(branch[i].iloc[:, element].unique())
+                skip_update = False
                 if branch[i][(branch[i].iloc[:, element] == value[0])].count()[0] > 1:
                     start = 0
                     finish = len(branch[i].iloc[:, element].unique()) - 2
@@ -135,25 +252,46 @@ def dt_c45(Xdata, ydata):
                     start = 0
                     finish = 2
                 for bin_split in range(start, finish):
-                    bin_sample = split_me(target = branch[i].iloc[:, 0], feature = branch[i].iloc[:, element], split = value[bin_split])
+                    bin_sample = split_me(feature = branch[i].iloc[:, element], split = value[bin_split])
+                    if i > 0 and pre_pruning == "chi_2" and chi_squared_test(branch[i].iloc[:, 0], bin_sample[0]) > chi_lim:
+                        if "." not in rule[i]:
+                             rule[i] = rule[i] + " THEN " + name + " = " + branch[i].agg(lambda x:x.value_counts().index[0])[0] + "."
+                             rule[i] = rule[i].replace(" AND  THEN ", " THEN ")
+                        skip_update = True
+                        continue
                     igr = info_gain_ratio(target = branch[i].iloc[:, 0], feature = bin_sample[0], uniques = bin_sample[1])
                     if igr > float(gain_ratio[0, element]):
                         gain_ratio[0, element] = igr
                         uniqueWords[element] = bin_sample[1]
-            if is_number(dataset.iloc[0, element]) == False:
+            if is_number(dataset.iloc[:, element]) == False:
                 gain_ratio[0, element] = 0.0
+                skip_update = False
                 igr = info_gain_ratio(target = branch[i].iloc[:, 0], feature =  pd.DataFrame(branch[i].iloc[:, element].values.reshape((branch[i].iloc[:, element].shape[0], 1))), uniques = uniqueWords[element])
                 gain_ratio[0, element] = igr
-            
+            if i > 0 and pre_pruning == "min" and len(branch[i]) <= min_lim:
+                 if "." not in rule[i]:
+                     rule[i] = rule[i] + " THEN " + name + " = " + branch[i].agg(lambda x:x.value_counts().index[0])[0] + "."
+                     rule[i] = rule[i].replace(" AND  THEN ", " THEN ")
+                 skip_update = True
+                 continue
+           
+        if i > 0 and pre_pruning == "impur" and np.amax(gain_ratio) <= impurity and np.amax(gain_ratio) > 0:
+             if "." not in rule[i]:
+                 rule[i] = rule[i] + " THEN " + name + " = " + branch[i].agg(lambda x:x.value_counts().index[0])[0] + "."
+                 rule[i] = rule[i].replace(" AND  THEN ", " THEN ")
+             print("amax = ",np.amax(gain_ratio), " impurity = ", impurity)
+             skip_update = True
+             continue
+        
         if skip_update == False:
             root_index = np.argmax(gain_ratio)
             rule[i] = rule[i] + list(branch[i])[root_index]
             
             for word in range(0, len(uniqueWords[root_index])):
                 uw = uniqueWords[root_index][word].replace("<=", "")
-                uw = uw.replace("> ", "")
+                uw = uw.replace(">", "")
                 lower = "<=" + uw
-                upper = "> " + uw
+                upper = ">" + uw
                 if uniqueWords[root_index][word] == lower:
                     branch.append(branch[i][branch[i].iloc[:, root_index] <= float(uw)])
                 elif uniqueWords[root_index][word] == upper:
@@ -173,10 +311,10 @@ def dt_c45(Xdata, ydata):
     
     for i in range(len(rule) - 1, -1, -1):
         if rule[i].endswith(".") == False:
-            del rule[i]
-    
-    rule.append("1) Total Number of Rules: " + str(len(rule)))
-    rule.append("2) When No Rule Applies: " + name + " = " + dataset.agg(lambda x:x.value_counts().index[0])[0])
+            del rule[i]    
+
+    rule.append("Total Number of Rules: " + str(len(rule)))
+    rule.append(dataset.agg(lambda x:x.value_counts().index[0])[0])
     
     return rule
 
@@ -189,6 +327,10 @@ df = pd.read_csv('Python-DM-Classification-02-C4.5.csv', sep = ';')
 X = df.iloc[:, 0:4]
 y = df.iloc[:, 4]
 
-dt_c45(Xdata = X, ydata = y)
+dt_model = dt_c45(Xdata = X, ydata = y, cat_missing = "missing", num_missing = "mean", pre_pruning = "impur", chi_lim = 0.1, min_lim = 5)
+
+# Prediction
+test =  df.iloc[0:2, 0:4]
+prediction_dt_c45(dt_model, test)
 
 ########################## End of Code #####################################
