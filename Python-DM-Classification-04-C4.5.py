@@ -322,7 +322,7 @@ def dt_c45(Xdata, ydata, cat_missing = "none", num_missing = "none", pre_pruning
 
 ######################## Part 4 - Usage ####################################
 
-df = pd.read_csv('Python-DM-Classification-02-C4.5.csv', sep = ';')
+df = pd.read_csv('Python-DM-Classification-04-C4.5.csv', sep = ';')
 
 X = df.iloc[:, 0:4]
 y = df.iloc[:, 4]
