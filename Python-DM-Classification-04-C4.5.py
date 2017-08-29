@@ -38,6 +38,8 @@ def is_number_value(value):
 
 # Function: Performs a Chi_Squared Test or Fisher Exact Test           
 def chi_squared_test(label_df, feature_df):
+    label_df.reset_index(drop=True, inplace=True)
+    feature_df.reset_index(drop=True, inplace=True)
     data = pd.concat([pd.DataFrame(label_df.values.reshape((label_df.shape[0], 1))), feature_df], axis = 1)
     data.columns=["label", "feature"]
     contigency_table = pd.crosstab(data.iloc[:,0], data.iloc[:,1], margins = False)
