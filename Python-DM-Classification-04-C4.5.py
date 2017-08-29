@@ -277,11 +277,10 @@ def dt_c45(Xdata, ydata, cat_missing = "none", num_missing = "none", pre_pruning
                  skip_update = True
                  continue
            
-        if i > 0 and pre_pruning == "impur" and np.amax(gain_ratio) <= impurity and np.amax(gain_ratio) > 0:
+        if i > 0 and pre_pruning == "impur" and np.amax(gain_ratio) < impurity and np.amax(gain_ratio) > 0:
              if "." not in rule[i]:
                  rule[i] = rule[i] + " THEN " + name + " = " + branch[i].agg(lambda x:x.value_counts().index[0])[0] + "."
                  rule[i] = rule[i].replace(" AND  THEN ", " THEN ")
-             print("amax = ",np.amax(gain_ratio), " impurity = ", impurity)
              skip_update = True
              continue
         
