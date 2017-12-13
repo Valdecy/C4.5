@@ -51,13 +51,14 @@ def chi_squared_test(label_df, feature_df):
     return p_value[1]
 
 # Function: Prediction           
-def prediction_dt_c45(dt_model, Xdata):
+def prediction_dt_c45(model, Xdata):
     ydata = pd.DataFrame(index=range(0, Xdata.shape[0]), columns=["Prediction"])
     data  = pd.concat([ydata, Xdata], axis = 1)
     rule = []
     for j in range(0, data.shape[1]):
         if data.iloc[:,j].dtype == "bool":
             data.iloc[:,j] = data.iloc[:, j].astype(str)
+    dt_model = model[:]
     for i in range(0, len(dt_model)):
         dt_model[i] = dt_model[i].replace("{", "")
         dt_model[i] = dt_model[i].replace("}", "")
