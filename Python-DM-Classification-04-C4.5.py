@@ -75,26 +75,31 @@ def prediction_dt_c45(model, Xdata):
    
     for i in range(0, Xdata.shape[0]): 
         for j in range(0, len(rule)):
-            k = 0
-            while k < len(rule[j]) - 2:
+            rule_confirmation = len(rule[j])/2 - 1
+            rule_count = 0
+            for k in range(0, len(rule[j]) - 2, 2):
                 if is_number_value(data[rule[j][k]][i]) == False:
-                    if (data[rule[j][k]][i] == rule[j][k+1]) == True:
-                        if k == len(rule[j]) - 4:
+                    if (data[rule[j][k]][i] in rule[j]):
+                        rule_count = rule_count + 1
+                        if (rule_count == rule_confirmation):
                             data.iloc[i,0] = rule[j][len(rule[j]) - 1]
                     else:
                         k = len(rule[j])
                 elif is_number_value(data[rule[j][k]][i]) == True:
                      if rule[j][k+1].find("<=") == 0:
-                         if data[rule[j][k]][i] <= float(rule[j][k+1].replace("<=", "")) and k == len(rule[j]) - 4: 
-                             data.iloc[i,0] = rule[j][len(rule[j]) - 1]
+                         if data[rule[j][k]][i] <= float(rule[j][k+1].replace("<=", "")): 
+                             rule_count = rule_count + 1
+                             if (rule_count == rule_confirmation):
+                                 data.iloc[i,0] = rule[j][len(rule[j]) - 1]
                          else:
                              k = len(rule[j])
                      elif rule[j][k+1].find(">") == 0:
-                         if data[rule[j][k]][i] > float(rule[j][k+1].replace(">", "")) and k == len(rule[j]) - 4: 
-                             data.iloc[i,0] = rule[j][len(rule[j]) - 1]
+                         if data[rule[j][k]][i] > float(rule[j][k+1].replace(">", "")): 
+                             rule_count = rule_count + 1
+                             if (rule_count == rule_confirmation):
+                                 data.iloc[i,0] = rule[j][len(rule[j]) - 1]
                          else:
                              k = len(rule[j])
-                k = k + 2
     
     for i in range(0, Xdata.shape[0]):
         if pd.isnull(data.iloc[i,0]):
