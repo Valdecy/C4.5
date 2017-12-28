@@ -16,6 +16,7 @@ import pandas as pd
 import numpy  as np
 from random import randint
 from scipy import stats
+from copy import deepcopy
 
 # Function: Returns True, if a Column is Numeric
 def is_number(string):
@@ -58,7 +59,7 @@ def prediction_dt_c45(model, Xdata):
     for j in range(0, data.shape[1]):
         if data.iloc[:,j].dtype == "bool":
             data.iloc[:,j] = data.iloc[:, j].astype(str)
-    dt_model = model[:]
+    dt_model = deepcopy(model)
     for i in range(0, len(dt_model)):
         dt_model[i] = dt_model[i].replace("{", "")
         dt_model[i] = dt_model[i].replace("}", "")
@@ -322,6 +323,7 @@ def dt_c45(Xdata, ydata, cat_missing = "none", num_missing = "none", pre_pruning
 
     rule.append("Total Number of Rules: " + str(len(rule)))
     rule.append(dataset.agg(lambda x:x.value_counts().index[0])[0])
+    print("End of Iterations")
     
     return rule
 
