@@ -53,6 +53,7 @@ def chi_squared_test(label_df, feature_df):
 
 # Function: Prediction           
 def prediction_dt_c45(model, Xdata):
+    Xdata = Xdata.reset_index(drop=True)
     ydata = pd.DataFrame(index=range(0, Xdata.shape[0]), columns=["Prediction"])
     data  = pd.concat([ydata, Xdata], axis = 1)
     rule = []
