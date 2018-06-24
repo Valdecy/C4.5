@@ -339,7 +339,7 @@ y = df.iloc[:, 4]
 
 dt_model = dt_c45(Xdata = X, ydata = y, cat_missing = "missing", num_missing = "mean", pre_pruning = "impur", chi_lim = 0.1, min_lim = 5)
 
-# Prediction
+# Calling Prediction
 test =  df.iloc[0:2, 0:4]
 prediction_dt_c45(dt_model, test)
 
