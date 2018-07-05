@@ -171,7 +171,6 @@ def dt_c45(Xdata, ydata, cat_missing = "none", num_missing = "none", pre_pruning
                    dataset.iloc[i,j] = "zero"
                else:
                    dataset.iloc[i,j] = "one"
-    print(dataset)
 
     # Preprocessing - Missing Values
     if cat_missing != "none":
