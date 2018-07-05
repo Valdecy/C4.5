@@ -57,10 +57,23 @@ def prediction_dt_c45(model, Xdata):
     ydata = pd.DataFrame(index=range(0, Xdata.shape[0]), columns=["Prediction"])
     data  = pd.concat([ydata, Xdata], axis = 1)
     rule = []
+    
+    # Preprocessing - Boolean Values
     for j in range(0, data.shape[1]):
         if data.iloc[:,j].dtype == "bool":
             data.iloc[:,j] = data.iloc[:, j].astype(str)
+   
+    # Preprocessing - Binary Values
+    for j in range(0, data.shape[1]):
+        if data.iloc[:,j].dropna().value_counts().index.isin([0,1]).all():
+            for i in range(0, data.shape[0]):          
+               if data.iloc[i,j] == 0:
+                   data.iloc[i,j] = "zero"
+               else:
+                   data.iloc[i,j] = "one"
+                   
     dt_model = deepcopy(model)
+    
     for i in range(0, len(dt_model)):
         dt_model[i] = dt_model[i].replace("{", "")
         dt_model[i] = dt_model[i].replace("}", "")
@@ -81,7 +94,7 @@ def prediction_dt_c45(model, Xdata):
             rule_count = 0
             for k in range(0, len(rule[j]) - 2, 2):
                 if is_number_value(data[rule[j][k]][i]) == False:
-                    if (data[rule[j][k]][i] in rule[j]):
+                    if (data[rule[j][k]][i] in rule[j][k+1]):
                         rule_count = rule_count + 1
                         if (rule_count == rule_confirmation):
                             data.iloc[i,0] = rule[j][len(rule[j]) - 1]
