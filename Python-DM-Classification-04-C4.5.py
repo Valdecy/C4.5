@@ -55,6 +55,13 @@ def chi_squared_test(label_df, feature_df):
 def prediction_dt_c45(model, Xdata):
     Xdata = Xdata.reset_index(drop=True)
     ydata = pd.DataFrame(index=range(0, Xdata.shape[0]), columns=["Prediction"])
+    for j in range(0, ydata.shape[1]):
+        if ydata.iloc[:,j].dropna().value_counts().index.isin([0,1]).all():
+            for i in range(0, ydata.shape[0]):          
+               if ydata.iloc[i,j] == 0:
+                   ydata.iloc[i,j] = "zero"
+               else:
+                   ydata.iloc[i,j] = "one"
     data  = pd.concat([ydata, Xdata], axis = 1)
     rule = []
     
@@ -62,15 +69,6 @@ def prediction_dt_c45(model, Xdata):
     for j in range(0, data.shape[1]):
         if data.iloc[:,j].dtype == "bool":
             data.iloc[:,j] = data.iloc[:, j].astype(str)
-   
-    # Preprocessing - Binary Values
-    for j in range(0, data.shape[1]):
-        if data.iloc[:,j].dropna().value_counts().index.isin([0,1]).all():
-            for i in range(0, data.shape[0]):          
-               if data.iloc[i,j] == 0:
-                   data.iloc[i,j] = "zero"
-               else:
-                   data.iloc[i,j] = "one"
                    
     dt_model = deepcopy(model)
     
@@ -169,21 +167,19 @@ def dt_c45(Xdata, ydata, cat_missing = "none", num_missing = "none", pre_pruning
     # Preprocessing - Creating Dataframe
     name = ydata.name
     ydata = pd.DataFrame(ydata.values.reshape((ydata.shape[0], 1)))
+    for j in range(0, ydata.shape[1]):
+        if ydata.iloc[:,j].dropna().value_counts().index.isin([0,1]).all():
+            for i in range(0, ydata.shape[0]):          
+               if ydata.iloc[i,j] == 0:
+                   ydata.iloc[i,j] = "zero"
+               else:
+                   ydata.iloc[i,j] = "one"
     dataset = pd.concat([ydata, Xdata], axis = 1)
     
      # Preprocessing - Boolean Values
     for j in range(0, dataset.shape[1]):
         if dataset.iloc[:,j].dtype == "bool":
             dataset.iloc[:,j] = dataset.iloc[:, j].astype(str)
-
-    # Preprocessing - Binary Values
-    for j in range(0, dataset.shape[1]):
-        if dataset.iloc[:,j].dropna().value_counts().index.isin([0,1]).all():
-            for i in range(0, dataset.shape[0]):          
-               if dataset.iloc[i,j] == 0:
-                   dataset.iloc[i,j] = "zero"
-               else:
-                   dataset.iloc[i,j] = "one"
 
     # Preprocessing - Missing Values
     if cat_missing != "none":
