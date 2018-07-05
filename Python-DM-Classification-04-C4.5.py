@@ -163,6 +163,16 @@ def dt_c45(Xdata, ydata, cat_missing = "none", num_missing = "none", pre_pruning
         if dataset.iloc[:,j].dtype == "bool":
             dataset.iloc[:,j] = dataset.iloc[:, j].astype(str)
 
+    # Preprocessing - Binary Values
+    for j in range(0, dataset.shape[1]):
+        if dataset.iloc[:,j].dropna().value_counts().index.isin([0,1]).all():
+            for i in range(0, dataset.shape[0]):          
+               if dataset.iloc[i,j] == 0:
+                   dataset.iloc[i,j] = "zero"
+               else:
+                   dataset.iloc[i,j] = "one"
+    print(dataset)
+
     # Preprocessing - Missing Values
     if cat_missing != "none":
         for j in range(1, dataset.shape[1]): 
