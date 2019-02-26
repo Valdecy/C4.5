@@ -312,7 +312,7 @@ def dt_c45(Xdata, ydata, cat_missing = "none", num_missing = "none", pre_pruning
         
         if skip_update == False:
             root_index = np.argmax(gain_ratio)
-            rule[i] = rule[i] + list(branch[i])[root_index]
+            rule[i] = rule[i] + str(list(branch[i])[root_index])
             
             for word in range(0, len(uniqueWords[root_index])):
                 uw = uniqueWords[root_index][word].replace("<=", "")
