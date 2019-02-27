@@ -17,3 +17,8 @@ C4.5 Algorithm uses Entropy and Information Gain Ratio measures to analyse categ
 * min_lim = 5. Minimum quantity of data examples that a node should have to avoid pruning. Values lower than this limit makes a node to be pruned. Only relevant if pre_pruning = "min".
 
 * Finnaly a prediction function - prediction_dt_c45( ) - is also included.
+
+# Acknowledgement 
+This section is dedicated for the all the people that helped to improve or correct the code. Thank you very much!
+
+* Patrick Eiselt (26.02.2019) - Germany
