@@ -19,6 +19,6 @@ C4.5 Algorithm uses Entropy and Information Gain Ratio measures to analyse categ
 * Finnaly a prediction function - prediction_dt_c45( ) - is also included.
 
 # Acknowledgement 
-This section is dedicated for the all the people that helped to improve or correct the code. Thank you very much!
+This section is dedicated to all the people that helped to improve or correct the code. Thank you very much!
 
 * Patrick Eiselt (26.02.2019) - Germany
