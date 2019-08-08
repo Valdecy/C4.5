@@ -21,4 +21,4 @@ C4.5 Algorithm uses Entropy and Information Gain Ratio measures to analyse categ
 # Acknowledgement 
 This section is dedicated to all the people that helped to improve or correct the code. Thank you very much!
 
-* Patrick Eiselt (26.02.2019) - Germany
+* Patrick Eiselt (26.FEBRUARY.2019) - Germany
