@@ -252,14 +252,14 @@ def dt_c45(Xdata, ydata, cat_missing = "none", num_missing = "none", pre_pruning
                 skip_update = True 
                 break
             if len(np.unique(branch[i][0])) == 1 or len(branch[i]) == 1:
-                 if "." not in rule[i]:
-                     rule[i] = rule[i] + " THEN " + name + " = " + branch[i].iloc[0, 0] + "."
+                 if ";" not in rule[i]:
+                     rule[i] = rule[i] + " THEN " + name + " = " + branch[i].iloc[0, 0] + ";"
                      rule[i] = rule[i].replace(" AND  THEN ", " THEN ")
                  skip_update = True
                  break
             if i > 0 and is_number(dataset.iloc[:, element]) == False and pre_pruning == "chi_2" and chi_squared_test(branch[i].iloc[:, 0], branch[i].iloc[:, element]) > chi_lim:
-                 if "." not in rule[i]:
-                     rule[i] = rule[i] + " THEN " + name + " = " + branch[i].agg(lambda x:x.value_counts().index[0])[0] + "."
+                 if ";" not in rule[i]:
+                     rule[i] = rule[i] + " THEN " + name + " = " + branch[i].agg(lambda x:x.value_counts().index[0])[0] + ";"
                      rule[i] = rule[i].replace(" AND  THEN ", " THEN ")
                  skip_update = True
                  continue
@@ -282,8 +282,8 @@ def dt_c45(Xdata, ydata, cat_missing = "none", num_missing = "none", pre_pruning
                 for bin_split in range(start, finish):
                     bin_sample = split_me(feature = branch[i].iloc[:, element], split = value[bin_split])
                     if i > 0 and pre_pruning == "chi_2" and chi_squared_test(branch[i].iloc[:, 0], bin_sample[0]) > chi_lim:
-                        if "." not in rule[i]:
-                             rule[i] = rule[i] + " THEN " + name + " = " + branch[i].agg(lambda x:x.value_counts().index[0])[0] + "."
+                        if ";" not in rule[i]:
+                             rule[i] = rule[i] + " THEN " + name + " = " + branch[i].agg(lambda x:x.value_counts().index[0])[0] + ";"
                              rule[i] = rule[i].replace(" AND  THEN ", " THEN ")
                         skip_update = True
                         continue
@@ -297,15 +297,15 @@ def dt_c45(Xdata, ydata, cat_missing = "none", num_missing = "none", pre_pruning
                 igr = info_gain_ratio(target = branch[i].iloc[:, 0], feature =  pd.DataFrame(branch[i].iloc[:, element].values.reshape((branch[i].iloc[:, element].shape[0], 1))), uniques = uniqueWords[element])
                 gain_ratio[0, element] = igr
             if i > 0 and pre_pruning == "min" and len(branch[i]) <= min_lim:
-                 if "." not in rule[i]:
-                     rule[i] = rule[i] + " THEN " + name + " = " + branch[i].agg(lambda x:x.value_counts().index[0])[0] + "."
+                 if ";" not in rule[i]:
+                     rule[i] = rule[i] + " THEN " + name + " = " + branch[i].agg(lambda x:x.value_counts().index[0])[0] + ";"
                      rule[i] = rule[i].replace(" AND  THEN ", " THEN ")
                  skip_update = True
                  continue
            
         if i > 0 and pre_pruning == "impur" and np.amax(gain_ratio) < impurity and np.amax(gain_ratio) > 0:
-             if "." not in rule[i]:
-                 rule[i] = rule[i] + " THEN " + name + " = " + branch[i].agg(lambda x:x.value_counts().index[0])[0] + "."
+             if ";" not in rule[i]:
+                 rule[i] = rule[i] + " THEN " + name + " = " + branch[i].agg(lambda x:x.value_counts().index[0])[0] + ";"
                  rule[i] = rule[i].replace(" AND  THEN ", " THEN ")
              skip_update = True
              continue
@@ -337,7 +337,7 @@ def dt_c45(Xdata, ydata, cat_missing = "none", num_missing = "none", pre_pruning
         stop = len(rule)
     
     for i in range(len(rule) - 1, -1, -1):
-        if rule[i].endswith(".") == False:
+        if rule[i].endswith(";") == False:
             del rule[i]    
 
     rule.append("Total Number of Rules: " + str(len(rule)))
