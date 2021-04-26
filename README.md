@@ -1,6 +1,6 @@
 # C4.5
 
-C4.5 Algorithm uses Entropy and Information Gain Ratio measures to analyse categorical and numerical data. The function returns: 1) The decision tree rules. 2) The total number of rules. You can try it in [Colab](https://colab.research.google.com/drive/1upOPNWJbMEW5BOUIuy2Ubna3vOpV4NYs?usp=sharing)
+C4.5 Algorithm uses Entropy and Information Gain Ratio measures to analyse categorical and numerical data. The function returns: 1) The decision tree rules. 2) The total number of rules. You can try it in [Colab](https://colab.research.google.com/drive/1upOPNWJbMEW5BOUIuy2Ubna3vOpV4NYs?usp=sharing).
 
 * Xdata = Dataset Attributes
 
@@ -22,3 +22,4 @@ C4.5 Algorithm uses Entropy and Information Gain Ratio measures to analyse categ
 This section is dedicated to all the people that helped to improve or correct the code. Thank you very much!
 
 * Patrick Eiselt (26.FEBRUARY.2019) - Germany
+* Xiuzhu Zhao (26.APRIL.2021) - China
