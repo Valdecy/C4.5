@@ -75,7 +75,7 @@ def prediction_dt_c45(model, Xdata):
     for i in range(0, len(dt_model)):
         dt_model[i] = dt_model[i].replace("{", "")
         dt_model[i] = dt_model[i].replace("}", "")
-        dt_model[i] = dt_model[i].replace(".", "")
+        dt_model[i] = dt_model[i].replace(";", "")
         dt_model[i] = dt_model[i].replace("IF ", "")
         dt_model[i] = dt_model[i].replace("AND", "")
         dt_model[i] = dt_model[i].replace("THEN", "")
