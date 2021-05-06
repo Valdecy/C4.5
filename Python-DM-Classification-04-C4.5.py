@@ -55,13 +55,13 @@ def chi_squared_test(label_df, feature_df):
 def prediction_dt_c45(model, Xdata):
     Xdata = Xdata.reset_index(drop=True)
     ydata = pd.DataFrame(index=range(0, Xdata.shape[0]), columns=["Prediction"])
-    for j in range(0, ydata.shape[1]):
-        if ydata.iloc[:,j].dropna().value_counts().index.isin([0,1]).all():
-            for i in range(0, ydata.shape[0]):          
-               if ydata.iloc[i,j] == 0:
-                   ydata.iloc[i,j] = "zero"
-               else:
-                   ydata.iloc[i,j] = "one"
+    #for j in range(0, ydata.shape[1]):
+        #if ydata.iloc[:,j].dropna().value_counts().index.isin([0,1]).all():
+            #for i in range(0, ydata.shape[0]):          
+               #if ydata.iloc[i,j] == 0:
+                   #ydata.iloc[i,j] = "zero"
+               #else:
+                   #ydata.iloc[i,j] = "one"
     data  = pd.concat([ydata, Xdata], axis = 1)
     rule = []
     
