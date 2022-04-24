@@ -165,7 +165,10 @@ def dt_c45(Xdata, ydata, cat_missing = "none", num_missing = "none", pre_pruning
     
     ################     Part 1 - Preprocessing    #############################
     # Preprocessing - Creating Dataframe
-    name = ydata.name
+    ydata = ydata.apply(str) # The Target Variable must be a String
+    name  = ydata.name
+    if (name is None):
+        name  = 'class'
     ydata = pd.DataFrame(ydata.values.reshape((ydata.shape[0], 1)))
     for j in range(0, ydata.shape[1]):
         if ydata.iloc[:,j].dropna().value_counts().index.isin([0,1]).all():
